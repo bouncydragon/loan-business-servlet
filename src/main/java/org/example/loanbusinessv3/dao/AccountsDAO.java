@@ -10,7 +10,7 @@ public interface AccountsDAO {
 
     List<Accounts> selectAllAccounts();
 
-    Accounts selectAccount();
+    Accounts selectAccount(String email);
 
     void updateAccount(String email) throws SQLException;
 

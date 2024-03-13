@@ -1,6 +1,9 @@
 package org.example.loanbusinessv3.model;
 
+import com.google.gson.annotations.JsonAdapter;
 import jakarta.persistence.*;
+import org.example.loanbusinessv3.util.LocalDateTypeAdapter;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,6 +16,7 @@ public class Accounts {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @JsonAdapter(LocalDateTypeAdapter.class)
     @Column(nullable = false)
     private LocalDateTime created_at;
 

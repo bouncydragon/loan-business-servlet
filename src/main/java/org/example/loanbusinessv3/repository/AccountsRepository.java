@@ -11,7 +11,7 @@ public class AccountsRepository implements AccountsDAO {
 
     @Override
     public void insertAccount(Accounts details) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("loan-business");
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("LoanBusiness");
         EntityManager em = emf.createEntityManager();
 
         try {
@@ -33,8 +33,24 @@ public class AccountsRepository implements AccountsDAO {
     }
 
     @Override
-    public Accounts selectAccount() {
-        return null;
+    public Accounts selectAccount(String email) {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("LoanBusiness");
+        EntityManager em = emf.createEntityManager();
+
+        Accounts acctByEmail = null;
+        try {
+            em.getTransaction().begin();
+            acctByEmail = em.createQuery("FROM Accounts acct WHERE acct.email = :email", Accounts.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            System.out.println(e);
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
+        }
+        return acctByEmail;
     }
 
     @Override

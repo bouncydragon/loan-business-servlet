@@ -4,7 +4,7 @@
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
              version="3.0">
 
-        <persistence-unit name="loan-business" transaction-type="RESOURCE_LOCAL">
+        <persistence-unit name="LoanBusiness" transaction-type="RESOURCE_LOCAL">
             <properties>
                 <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" /> <!-- DB Driver -->
                 <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost/loan_business" /> <!-- BD Mane -->

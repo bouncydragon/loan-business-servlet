@@ -18,12 +18,10 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
-            <version>3.0.0</version>
-            <scope>provided</scope>
+            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>jakarta.servlet</groupId>
@@ -59,6 +57,11 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
         </dependency>
 
     </dependencies>
