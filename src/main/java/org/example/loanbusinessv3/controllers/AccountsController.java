@@ -2,23 +2,20 @@ package org.example.loanbusinessv3.controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
-import org.example.loanbusinessv3.dao.AccountsDAO;
 import org.example.loanbusinessv3.model.Accounts;
 import org.example.loanbusinessv3.repository.AccountsRepository;
 import org.example.loanbusinessv3.util.LocalDateTypeAdapter;
 
 
-@WebServlet(name="AccountsController", urlPatterns = {"/accounts", "/get-account"})
+@WebServlet(name="AccountsController", urlPatterns = {"/accounts", "/get-account", "/get-all-accounts"})
 public class AccountsController extends HttpServlet {
 
     private String email;
@@ -49,15 +46,19 @@ public class AccountsController extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String actionPath = req.getServletPath();
 
         if (Objects.equals(actionPath, "/get-account")) {
             this.getAccount(req, resp);
         }
+
+        if (Objects.equals(actionPath, "/get-all-accounts")) {
+            this.getAllAccounts(resp);
+        }
     }
 
-    private void getAccount(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+    private void getAccount(HttpServletRequest req, HttpServletResponse res) throws IOException {
         email = req.getParameter("email");
         Accounts retrievedAcct = accountRepo.selectAccount(email);
 
@@ -68,6 +69,17 @@ public class AccountsController extends HttpServlet {
         res.setCharacterEncoding("UTF-8");
         out.print(newAcctJsonString);
         out.flush();
+    }
+
+    private void getAllAccounts(HttpServletResponse res) throws IOException {
+        List<Accounts> allAccounts = accountRepo.selectAllAccounts();
+
+        res.setStatus(200);
+        String newAcctJsonString = gson.toJson(allAccounts);
+        PrintWriter out = res.getWriter();
+        res.setContentType("application/json");
+        res.setCharacterEncoding("UTF-8");
+        out.print(newAcctJsonString);
 
     }
 }
