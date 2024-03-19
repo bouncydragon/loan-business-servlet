@@ -1,4 +1,4 @@
-package org.example.loanbusinessv3.dao;
+package org.example.loanbusinessv3.repository.dao;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -12,7 +12,7 @@ public interface AccountsDAO {
 
     Accounts selectAccount(String email);
 
-    void updateAccount(String email) throws SQLException;
+    void updateAccount(String email, String updatedEmail) throws SQLException;
 
     void deleteAccount(String email) throws SQLException;
 }

@@ -106,21 +106,6 @@ public class ProfilesController extends HttpServlet {
         super.doPut(req, resp);
     }
 
-    /** 
-     * Calling this methods everything works fine. Below is the output of the getProfileAndAccount method
-     * Desired Output:
-     * {
-            "profile": {
-                "address": "NY. GC.",
-                "phone": "09778937463",
-                "fullName": "Flonta"
-            },
-            "account": {
-                "account_id": 15,
-                "email": "dev.test-07@gmail.com"
-            }
-        }
-     * */ 
     private void getProfileAndAccount(HttpServletRequest req, HttpServletResponse res) throws IOException {
         String email = req.getParameter("email");
         Map<String, Object> retrievedProfile = profileRepo.selectProfileAndAccount(email);
@@ -132,15 +117,6 @@ public class ProfilesController extends HttpServlet {
         out.print(acctAndProfile);
     }
 
-    /** 
-     * When using this method, it returns an error of Stackoverflow
-     * Desired Output:
-        {
-           "address": "NY. GC.",
-           "phone": "09778937463",
-           "fullName": "Flonta"
-        }
-     * */ 
     private void getProfile(HttpServletRequest req, HttpServletResponse res) throws IOException {
         String email = req.getParameter("email");
         Profiles retrievedProfile = profileRepo.selectProfile(email);
@@ -152,27 +128,13 @@ public class ProfilesController extends HttpServlet {
         out.print(profileDets);
     }
 
-    /** 
-     * When using this method, it returns an error of Stackoverflow
-     * Desired Output:
-        {
-           {
-                "address": "NY. GC.",
-                "phone": "09778937463",
-                "fullName": "Flonta"
-            },
-            {
-                "address": "NY. GC.",
-                "phone": "09778937463",
-                "fullName": "Magiska"
-            },
-        }
-     * */ 
     private void getAllProfiles(HttpServletRequest req, HttpServletResponse res) throws IOException {
         List<Profiles> profiles = profileRepo.getAllProfiles();
 
         res.setStatus(200);
         String allProfiles = gson.toJson(profiles);
+        System.out.println("ALL");
+        System.out.println(allProfiles);
         PrintWriter out = res.getWriter();
         res.setContentType("application/json");
         res.setCharacterEncoding("UTF-8");

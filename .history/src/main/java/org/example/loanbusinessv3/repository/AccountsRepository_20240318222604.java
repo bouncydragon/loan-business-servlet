@@ -5,15 +5,12 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.example.loanbusinessv3.repository.dao.AccountsDAO;
-import org.example.loanbusinessv3.util.EntityManagerUtil;
 import org.example.loanbusinessv3.model.Accounts;
 
 import java.util.List;
 
 public class AccountsRepository implements AccountsDAO {
-    
-    @PersistenceUnit
-    private EntityManagerFactory emf = EntityManagerUtil.createEntityManagerFactory();
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("LoanBusiness");
 
     @Override
     public void insertAccount(Accounts details) {

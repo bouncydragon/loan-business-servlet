@@ -6,8 +6,6 @@ import org.example.loanbusinessv3.util.LocalDateTypeAdapter;
 
 import java.time.LocalDateTime;
 
-@NamedQuery(name = "findAccountByEmail", query = "SELECT a FROM Accounts a WHERE a.email = :email")
-
 @Entity
 @Table(name = "accounts")
 public class Accounts {
@@ -22,7 +20,7 @@ public class Accounts {
     @Column(nullable = false)
     private LocalDateTime created_at;
 
-    @OneToOne(mappedBy = "account_id", cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "account_id", cascade = CascadeType.PERSIST)
     private Profiles profile;
 
     public Accounts(String email) {

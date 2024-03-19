@@ -133,13 +133,13 @@ public class AccountsController extends HttpServlet {
     }
 
     private void getAllAccounts(HttpServletResponse res) throws IOException {
-        List<Accounts> accounts = accountRepo.selectAllAccounts();
+        List<Accounts> allAccounts = accountRepo.selectAllAccounts();
 
         res.setStatus(200);
-        String allAccounts = gson.toJson(accounts);
+        String newAcctJsonString = gson.toJson(allAccounts);
         PrintWriter out = res.getWriter();
         res.setContentType("application/json");
         res.setCharacterEncoding("UTF-8");
-        out.print(allAccounts);
+        out.print(newAcctJsonString);
     }
 }

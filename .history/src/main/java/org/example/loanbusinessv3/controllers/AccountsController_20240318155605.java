@@ -2,8 +2,6 @@ package org.example.loanbusinessv3.controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import jakarta.persistence.NoResultException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -50,7 +48,7 @@ public class AccountsController extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         out.print(newAcctJsonString);
-        out.flush();
+        out.flush(); // Still don't understand what is this
     }
 
     @Override
@@ -79,43 +77,31 @@ public class AccountsController extends HttpServlet {
         email = req.getParameter("email");
         String updatedEmail = req.getParameter("updatedEmail");
 
-        HandleError error = new HandleError(
-            null,
-            HttpServletResponse.SC_BAD_REQUEST,
-            null
-        );
-
-        PrintWriter out = res.getWriter();
-        res.setContentType("application/json");
-        res.setCharacterEncoding("UTF-8");
-
         if (email == null || updatedEmail == null || email.isEmpty() || updatedEmail.isEmpty()) {
-            error = new HandleError(
+            HandleError error = new HandleError(
                     "Missing additional parameter",
                     HttpServletResponse.SC_BAD_REQUEST,
                     "Please provide the proper parameters."
             );
 
             String errorHandle = gson.toJson(error);
+            PrintWriter out = res.getWriter();
+            res.setContentType("application/json");
+            res.setCharacterEncoding("UTF-8");
             out.print(errorHandle);
         }
 
         if (!email.isEmpty() && !updatedEmail.isEmpty()) {
             accountRepo.updateAccount(email, updatedEmail);
-            Accounts updatedAcct = null;
+            Accounts updatedAcct = accountRepo.selectAccount(updatedEmail);
 
-            try {
-                updatedAcct = accountRepo.selectAccount(updatedEmail);
-                res.setStatus(200);
-                String newAcctJsonString = gson.toJson(updatedAcct);
-                out.print(newAcctJsonString);
-            } catch (NoResultException e) {
-                error = new HandleError(
-                    "No Result Exception",
-                    HttpServletResponse.SC_BAD_REQUEST,
-                    e.getMessage()
-                );
-            }
+            res.setStatus(200);
+
+            String newAcctJsonString = gson.toJson(updatedAcct);
+            PrintWriter out = res.getWriter();
+            res.setContentType("application/json");
+            res.setCharacterEncoding("UTF-8");
+            out.print(newAcctJsonString);
         }
     }
 
@@ -133,13 +119,14 @@ public class AccountsController extends HttpServlet {
     }
 
     private void getAllAccounts(HttpServletResponse res) throws IOException {
-        List<Accounts> accounts = accountRepo.selectAllAccounts();
+        List<Accounts> allAccounts = accountRepo.selectAllAccounts();
 
         res.setStatus(200);
-        String allAccounts = gson.toJson(accounts);
+        String newAcctJsonString = gson.toJson(allAccounts);
         PrintWriter out = res.getWriter();
         res.setContentType("application/json");
         res.setCharacterEncoding("UTF-8");
-        out.print(allAccounts);
+        out.print(newAcctJsonString);
+
     }
 }
