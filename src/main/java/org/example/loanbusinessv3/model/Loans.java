@@ -3,7 +3,10 @@ package org.example.loanbusinessv3.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
+
+import org.example.loanbusinessv3.util.LocalDateTypeAdapter;
+
+import com.google.gson.annotations.JsonAdapter;
 
 @Entity
 @Table(name = "loans")
@@ -13,16 +16,16 @@ public class Loans {
     private Long loan_id;
 
     @ManyToOne
-    @JoinColumn(name = "account_id")
+    @JoinColumn(name = "account_id", updatable = false)
     private Accounts account_id;
 
-    @ManyToMany
-    @JoinTable(
-            name = "loan_guarantors",
-            joinColumns = @JoinColumn(name = "loan_id"),
-            inverseJoinColumns = @JoinColumn(name = "guarantor_id")
-    )
-    private List<Guarantors> guarantors;
+    // @ManyToMany
+    // @JoinTable(
+    //         name = "loan_guarantors",
+    //         joinColumns = @JoinColumn(name = "loan_id"),
+    //         inverseJoinColumns = @JoinColumn(name = "guarantor_id")
+    // )
+    // private List<Guarantors> guarantors;
 
     @Column(nullable = false)
     private double loan_amount;
@@ -30,12 +33,15 @@ public class Loans {
     @Column(nullable = false)
     private double interest_rate;
 
+    @JsonAdapter(LocalDateTypeAdapter.class)
     @Column(nullable = false)
     private LocalDateTime start_date;
 
+    @JsonAdapter(LocalDateTypeAdapter.class)
     @Column(nullable = false)
     private LocalDateTime end_date;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
 
@@ -106,11 +112,11 @@ public class Loans {
         this.status = status;
     }
 
-    public List<Guarantors> getGuarantors() {
-        return guarantors;
-    }
+    // public List<Guarantors> getGuarantors() {
+    //     return guarantors;
+    // }
 
-    public void setGuarantors(List<Guarantors> guarantors) {
-        this.guarantors = guarantors;
-    }
+    // public void setGuarantors(List<Guarantors> guarantors) {
+    //     this.guarantors = guarantors;
+    // }
 }

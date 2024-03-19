@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 public class Guarantors {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int guarantor_id;
+    private Long guarantor_id;
 
     @Column(unique = true, nullable = false)
     private String full_name;
@@ -27,11 +27,11 @@ public class Guarantors {
     public Guarantors() {
     }
 
-    public int getGuarantor_id() {
+    public Long getGuarantor_id() {
         return guarantor_id;
     }
 
-    public void setGuarantor_id(int guarantor_id) {
+    public void setGuarantor_id(Long guarantor_id) {
         this.guarantor_id = guarantor_id;
     }
 

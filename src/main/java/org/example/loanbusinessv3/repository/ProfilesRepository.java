@@ -107,16 +107,15 @@ public class ProfilesRepository implements ProfilesDAO {
             Accounts account = em.createNamedQuery("findAccountByEmail", Accounts.class)
             .setParameter("email", email)
             .getSingleResult();
-
-            /*
-             * Don't know if this is the correct solution, id seems to be always 0
-             */
-            Profiles setProfile = new Profiles(
-                account.getProfile().getFull_name(), 
-                account.getProfile().getPhone(), 
-                account.getProfile().getAddress());
             
-            return setProfile;
+            if (account.getProfile() != null) {
+                Profiles setProfile = new Profiles(
+                    account.getProfile().getFull_name(), 
+                    account.getProfile().getPhone(), 
+                    account.getProfile().getAddress());
+                return setProfile;
+            }
+            return null;
         } finally {
             em.close();
         }

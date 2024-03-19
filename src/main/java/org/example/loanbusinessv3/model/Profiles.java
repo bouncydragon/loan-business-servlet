@@ -7,7 +7,7 @@ public class Profiles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "profile_id")
-    private int id;
+    private Long id;
 
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "account_id", nullable = false)
@@ -22,19 +22,6 @@ public class Profiles {
     @Column(nullable = false)
     private String address;
 
-    @Override
-    public String toString() {
-        return "model.Profiles{" +
-                "account_id=" + account_id +
-                ", full_name='" + full_name + '\'' +
-                ", phone='" + phone + '\'' +
-                ", address='" + address + '\'' +
-                ", profile_id='" + id + '\'' +
-                '}';
-    }
-
-    public Profiles() {
-    }
 
     public Profiles(String full_name, String phone, String address) {
         this.full_name = full_name;
@@ -42,11 +29,14 @@ public class Profiles {
         this.address = address;
     }
 
-    public int getId() {
+    public Profiles() {
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

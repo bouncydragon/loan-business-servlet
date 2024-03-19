@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class Accounts {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int account_id;
+    private Long account_id;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -31,14 +31,13 @@ public class Accounts {
     }
 
     public Accounts() {
-
     }
 
-    public int getAccount_id() {
+    public Long getAccount_id() {
         return account_id;
     }
 
-    public void setAccount_id(int account_id) {
+    public void setAccount_id(Long account_id) {
         this.account_id = account_id;
     }
 
