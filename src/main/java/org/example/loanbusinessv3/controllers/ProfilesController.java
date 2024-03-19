@@ -31,7 +31,6 @@ public class ProfilesController extends HttpServlet {
     private final AccountsRepository accountRepo = new AccountsRepository();
     
     private Gson gson = new GsonBuilder()
-                    // .excludeFieldsWithoutExposeAnnotation()
                     .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
                     .create();
 
@@ -102,11 +101,39 @@ public class ProfilesController extends HttpServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // TODO Auto-generated method stub
-        super.doPut(req, resp);
+        String fullName = req.getParameter("fullName");
+        String phone = req.getParameter("phone");
+        String address = req.getParameter("address");
+        String email = req.getParameter("email");
+
+        PrintWriter out = resp.getWriter();
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        Profiles existingProfile = profileRepo.selectProfile(email);
+
+        if (existingProfile == null) {
+            HandleError error = new HandleError(
+                "Email " + email + " does not exist.", 
+                HttpServletResponse.SC_CONFLICT,
+                "Create a new account.");
+            String errorHandle = gson.toJson(error);
+            out.print(errorHandle);
+            return;
+        }
+
+        Profiles profile = profileRepo.selectProfile(email);
+        if (profile != null) {
+            Map<String, String> params = new HashMap<>();
+            params.put("fullName", fullName);
+            params.put("address", address);
+            params.put("phone", phone);
+
+            profileRepo.updateProfile(params, email);
+        }
     }
 
-    /** 
+    /* 
      * Calling this methods everything works fine. Below is the output of the getProfileAndAccount method
      * Desired Output:
      * {
@@ -132,8 +159,9 @@ public class ProfilesController extends HttpServlet {
         out.print(acctAndProfile);
     }
 
-    /** 
-     * When using this method, it returns an error of Stackoverflow
+    /*
+     * Problem : Returns Stackoverflow error
+     * Solution : selectProfile() method in ProfilesRepository
      * Desired Output:
         {
            "address": "NY. GC.",
@@ -152,8 +180,8 @@ public class ProfilesController extends HttpServlet {
         out.print(profileDets);
     }
 
-    /** 
-     * When using this method, it returns an error of Stackoverflow
+    /* 
+     * Problem : Returns Stackoverflow error
      * Desired Output:
         {
            {
@@ -171,8 +199,23 @@ public class ProfilesController extends HttpServlet {
     private void getAllProfiles(HttpServletRequest req, HttpServletResponse res) throws IOException {
         List<Profiles> profiles = profileRepo.getAllProfiles();
 
+         /*
+         * Solution
+         */
+        List<Map<String, Object>> allProfilesDetails = new ArrayList<>();
+
+        for (Profiles p : profiles) {
+            Map<String, Object> profileDetails = new HashMap<>();
+            profileDetails.put("address", p.getAddress());
+            profileDetails.put("fullName", p.getFull_name());
+            profileDetails.put("phone", p.getPhone());
+            profileDetails.put("profile_id", p.getId());
+
+            allProfilesDetails.add(profileDetails);
+        }
+
         res.setStatus(200);
-        String allProfiles = gson.toJson(profiles);
+        String allProfiles = gson.toJson(allProfilesDetails);
         PrintWriter out = res.getWriter();
         res.setContentType("application/json");
         res.setCharacterEncoding("UTF-8");

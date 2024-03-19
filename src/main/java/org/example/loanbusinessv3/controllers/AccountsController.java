@@ -27,15 +27,10 @@ import org.example.loanbusinessv3.util.HandleError;
 public class AccountsController extends HttpServlet {
 
     private String email;
-    private AccountsRepository accountRepo;
+    private final AccountsRepository accountRepo = new AccountsRepository();
     private Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
             .create();
-
-    @Override
-    public void init() {
-        accountRepo = new AccountsRepository();
-    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {

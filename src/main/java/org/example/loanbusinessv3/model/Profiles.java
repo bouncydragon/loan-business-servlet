@@ -29,6 +29,7 @@ public class Profiles {
                 ", full_name='" + full_name + '\'' +
                 ", phone='" + phone + '\'' +
                 ", address='" + address + '\'' +
+                ", profile_id='" + id + '\'' +
                 '}';
     }
 

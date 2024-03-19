@@ -13,7 +13,7 @@ public interface ProfilesDAO {
 
     Profiles selectProfile(String email);
 
-    void updateProfile();
+    void updateProfile(Map<String, String> parameters, String email);
 
     void deleteProfile(String email);
 }

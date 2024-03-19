@@ -107,16 +107,61 @@ public class ProfilesRepository implements ProfilesDAO {
             Accounts account = em.createNamedQuery("findAccountByEmail", Accounts.class)
             .setParameter("email", email)
             .getSingleResult();
+
+            /*
+             * Don't know if this is the correct solution, id seems to be always 0
+             */
+            Profiles setProfile = new Profiles(
+                account.getProfile().getFull_name(), 
+                account.getProfile().getPhone(), 
+                account.getProfile().getAddress());
             
-            return account.getProfile();
+            return setProfile;
         } finally {
             em.close();
         }
     }
 
     @Override
-    public void updateProfile() {
-        // TODO Auto-generated method stub
+    public void updateProfile(Map<String, String> parameters, String email) {
+        Profiles data = selectProfile(email);
         
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            Accounts account = em.createNamedQuery("findAccountByEmail", Accounts.class)
+                .setParameter("email", email)
+                .getSingleResult();
+
+            if (account != null) {
+                Profiles profile = account.getProfile();
+
+                if (profile != null) {
+                    if (parameters.containsKey("fullName")) {
+                        if (!Objects.equals(data.getFull_name(), parameters.get("fullName"))) {
+                            profile.setFull_name(parameters.get("fullName"));
+                        }
+                    }
+                    if (parameters.containsKey("address")) {
+                        if (!Objects.equals(data.getAddress(), parameters.get("address"))) {
+                            profile.setAddress(parameters.get("address"));
+                        }
+                    }
+                    if (parameters.containsKey("phone")) {
+                        if (!Objects.equals(data.getPhone(), parameters.get("phone"))) {
+                            profile.setPhone(parameters.get("phone"));
+                        }
+                    }
+                    System.out.println(profile);
+                    em.merge(profile);
+                    em.getTransaction().commit();
+                }
+            }
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
+        }
     }
 }
