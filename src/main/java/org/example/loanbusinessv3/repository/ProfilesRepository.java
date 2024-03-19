@@ -153,7 +153,6 @@ public class ProfilesRepository implements ProfilesDAO {
                             profile.setPhone(parameters.get("phone"));
                         }
                     }
-                    System.out.println(profile);
                     em.merge(profile);
                     em.getTransaction().commit();
                 }
