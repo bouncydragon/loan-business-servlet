@@ -2,6 +2,8 @@ package org.example.loanbusinessv3.model;
 
 import jakarta.persistence.*;
 
+@NamedQuery(name = "findGuarantorByEmail", query = "SELECT g FROM Guarantors g WHERE g.email = :email")
+
 @Entity
 @Table(name = "guarantors")
 public class Guarantors {
