@@ -14,6 +14,7 @@ import com.google.gson.annotations.JsonAdapter;
 public class Loans {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "loan_id")
     private Long loan_id;
 
     @ManyToOne
@@ -113,11 +114,11 @@ public class Loans {
         this.status = status;
     }
 
-    // public List<Guarantors> getGuarantors() {
-    //     return guarantors;
-    // }
+    public List<Guarantors> getGuarantors() {
+        return guarantors;
+    }
 
-    // public void setGuarantors(List<Guarantors> guarantors) {
-    //     this.guarantors = guarantors;
-    // }
+    public void setGuarantors(List<Guarantors> guarantors) {
+        this.guarantors = guarantors;
+    }
 }

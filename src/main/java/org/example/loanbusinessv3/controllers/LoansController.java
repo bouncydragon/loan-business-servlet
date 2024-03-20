@@ -13,9 +13,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.example.loanbusinessv3.model.Accounts;
+import org.example.loanbusinessv3.model.Guarantors;
 import org.example.loanbusinessv3.model.Loans;
 import org.example.loanbusinessv3.model.Status;
 import org.example.loanbusinessv3.repository.AccountsRepository;
+import org.example.loanbusinessv3.repository.GuarantorRepository;
 import org.example.loanbusinessv3.repository.LoansRepository;
 import org.example.loanbusinessv3.util.LocalDateTypeAdapter;
 import org.example.loanbusinessv3.util.ResponseHandler;
@@ -23,12 +25,13 @@ import org.example.loanbusinessv3.util.ResponseHandler;
 
 @WebServlet(name = "LoansController", urlPatterns = {
     "/loans", "/get-all-loans", "/get-loan-by-email",
-    "/get-loan-by-id"
+    "/get-loan-by-id", "/loans-guarantors"
 })
 public class LoansController extends HttpServlet {
 
     private final AccountsRepository accountRepo = new AccountsRepository();
     private final LoansRepository loansRepo = new LoansRepository();
+    private final GuarantorRepository guarantorRepo = new GuarantorRepository();
 
     private Gson gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTypeAdapter())
@@ -36,6 +39,42 @@ public class LoansController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String urlPath = req.getServletPath();
+
+        if (Objects.equals(urlPath, "/loans-guarantors")) {
+            assocLoansAndGuarantors(req, resp);
+        } else {
+            createLoansWithAssocAccount(req, resp);
+        }
+    }
+
+    private void assocLoansAndGuarantors(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        BufferedReader reader = req.getReader();
+        JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
+
+        JsonArray loansArray = jsonObject.getAsJsonArray("loans");
+        JsonArray guarantorsList = jsonObject.getAsJsonArray("guarantors");
+        List<Loans> loansWithGuarantors = new ArrayList<>();
+
+        for (JsonElement lElement : loansArray) {
+            Loans loan = gson.fromJson(lElement, Loans.class);
+            List<Guarantors> loanGuarantors = new ArrayList<>();
+
+            for (JsonElement gElement : guarantorsList) {
+                String email = gElement.getAsString();
+                Guarantors guarantor = guarantorRepo.findByEmail(email);
+                if (guarantor != null) {
+                    loanGuarantors.add(guarantor);
+                }
+            }
+            loan.setGuarantors(loanGuarantors);
+            loansWithGuarantors.add(loan);
+        }
+        Map<String, Object> list = loansRepo.createLoanWithGuarantors(loansWithGuarantors);
+        ResponseHandler.jsonResponse(res, HttpServletResponse.SC_OK, list);
+    }
+
+    private void createLoansWithAssocAccount(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         BufferedReader reader = req.getReader();
         JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
         
@@ -52,7 +91,7 @@ public class LoansController extends HttpServlet {
         Accounts account = accountRepo.selectAccount(email);
         loansRepo.addLoan(loans, account);
 
-        ResponseHandler.jsonResponse(resp, HttpServletResponse.SC_OK, "Loans are successfully added to " + email);
+        ResponseHandler.jsonResponse(res, HttpServletResponse.SC_OK, "Loans are successfully added to " + email);
     }
 
     @Override

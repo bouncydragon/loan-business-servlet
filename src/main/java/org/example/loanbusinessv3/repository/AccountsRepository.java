@@ -8,7 +8,10 @@ import org.example.loanbusinessv3.repository.dao.AccountsDAO;
 import org.example.loanbusinessv3.util.EntityManagerUtil;
 import org.example.loanbusinessv3.model.Accounts;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AccountsRepository implements AccountsDAO {
     
@@ -47,9 +50,16 @@ public class AccountsRepository implements AccountsDAO {
         EntityManager em = emf.createEntityManager();
         // JPQL
         try {
-            return em.createQuery("FROM Accounts acct WHERE acct.email = :email", Accounts.class)
+            Accounts resultAccount = em.createQuery("FROM Accounts acct WHERE acct.email = :email", Accounts.class)
             .setParameter("email", email)
             .getSingleResult();
+
+            Accounts account = new Accounts();
+            account.setAccount_id(resultAccount.getAccount_id());
+            account.setCreated_at(resultAccount.getCreated_at());
+            account.setEmail(resultAccount.getEmail());
+
+            return account;
         } finally {
             em.close();
         }

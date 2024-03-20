@@ -1,14 +1,17 @@
 package org.example.loanbusinessv3.model;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 
-@NamedQuery(name = "findGuarantorByEmail", query = "SELECT g FROM Guarantors g WHERE g.email = :email")
+@NamedQuery(name = "findByEmail", query = "SELECT g FROM Guarantors g WHERE g.email = :email")
 
 @Entity
 @Table(name = "guarantors")
 public class Guarantors {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "guarantor_id")
     private Long guarantor_id;
 
     @Column(unique = true, nullable = false)
@@ -19,6 +22,17 @@ public class Guarantors {
 
     @Column(nullable = false)
     private String phone;
+
+    @ManyToMany(mappedBy = "guarantors")
+    private List<Loans> loans;
+
+    public List<Loans> getLoans() {
+        return loans;
+    }
+
+    public void setLoans(List<Loans> loans) {
+        this.loans = loans;
+    }
 
     public Guarantors(String full_name, String email, String phone) {
         this.full_name = full_name;

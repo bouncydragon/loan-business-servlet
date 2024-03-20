@@ -60,6 +60,16 @@ public class GuarantorController extends HttpServlet {
         super.doPut(req, resp);
     }
 
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String email = req.getParameter("email");
+
+        Guarantors guarantor = guarantorRepo.findByEmail(email);
+        ResponseHandler.jsonResponse(resp, HttpServletResponse.SC_OK, guarantor);
+    }
+
+    
+
     
 
     

@@ -5,10 +5,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.example.loanbusinessv3.model.Accounts;
+import org.example.loanbusinessv3.model.Profiles;
 import org.example.loanbusinessv3.repository.AccountsRepository;
 import org.example.loanbusinessv3.util.ResponseHandler;
 
@@ -76,14 +80,25 @@ public class AccountsController extends HttpServlet {
 
     private void getAccount(HttpServletRequest req, HttpServletResponse res) throws IOException {
         email = req.getParameter("email");
-        Accounts retrievedAcct = accountRepo.selectAccount(email);
+        Accounts account = accountRepo.selectAccount(email);
 
-        ResponseHandler.jsonResponse(res, HttpServletResponse.SC_OK, retrievedAcct);
+        ResponseHandler.jsonResponse(res, HttpServletResponse.SC_OK, account);
     }
 
     private void getAllAccounts(HttpServletResponse res) throws IOException {
         List<Accounts> accounts = accountRepo.selectAllAccounts();
 
-        ResponseHandler.jsonResponse(res, HttpServletResponse.SC_OK, accounts);
+        List<Map<String, Object>> accountList = new ArrayList<>();
+
+        for (Accounts a : accounts) {
+            Map<String, Object> accountObj = new HashMap<>();
+            accountObj.put("account_id", a.getAccount_id());
+            accountObj.put("email", a.getEmail());
+            accountObj.put("created_at", a.getCreated_at());
+
+            accountList.add(accountObj);
+        }
+
+        ResponseHandler.jsonResponse(res, HttpServletResponse.SC_OK, accountList);
     }
 }

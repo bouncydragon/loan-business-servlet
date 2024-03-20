@@ -136,6 +136,8 @@ public class ProfilesController extends HttpServlet {
             allProfilesDetails.add(profileDetails);
         }
 
+        System.out.println(allProfilesDetails);
+
         ResponseHandler.jsonResponse(res, HttpServletResponse.SC_OK, allProfilesDetails);
     }
     

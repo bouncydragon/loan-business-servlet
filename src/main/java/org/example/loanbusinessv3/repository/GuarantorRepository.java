@@ -23,7 +23,7 @@ public class GuarantorRepository implements GuarantorsDAO{
             em.getTransaction().begin();
             for (Guarantors guarantor : guarantors) {
                 try {
-                    Guarantors guarantorExist = em.createNamedQuery("findGuarantorByEmail", Guarantors.class)
+                    Guarantors guarantorExist = em.createNamedQuery("findByEmail", Guarantors.class)
                     .setParameter("email", guarantor.getEmail())
                     .getSingleResult();
 
@@ -53,6 +53,24 @@ public class GuarantorRepository implements GuarantorsDAO{
         // TODO Auto-generated method stub
         
     }
+
+    @Override
+    public Guarantors findByEmail(String email) throws NoResultException {
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            return em.createNamedQuery("findByEmail", Guarantors.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    
 
     
 }
