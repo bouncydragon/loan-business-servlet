@@ -15,7 +15,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.example.loanbusinessv3.model.Accounts;
 import org.example.loanbusinessv3.model.Guarantors;
 import org.example.loanbusinessv3.model.Loans;
-import org.example.loanbusinessv3.model.Profiles;
 import org.example.loanbusinessv3.model.Status;
 import org.example.loanbusinessv3.repository.AccountsRepository;
 import org.example.loanbusinessv3.repository.GuarantorRepository;

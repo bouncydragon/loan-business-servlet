@@ -90,8 +90,6 @@ public class LoansRepository implements LoansDAO {
         return response;
     }
 
-
-
     @Override
     public List<Loans> findAllLoans() {
         EntityManager em = emf.createEntityManager();
