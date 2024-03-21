@@ -23,16 +23,16 @@ public class Guarantors {
     @Column(nullable = false)
     private String phone;
 
-    @ManyToMany(mappedBy = "guarantors")
-    private List<Loans> loans;
+    // @ManyToMany(mappedBy = "guarantors")
+    // private List<Loans> loans;
 
-    public List<Loans> getLoans() {
-        return loans;
-    }
+    // public List<Loans> getLoans() {
+    //     return loans;
+    // }
 
-    public void setLoans(List<Loans> loans) {
-        this.loans = loans;
-    }
+    // public void setLoans(List<Loans> loans) {
+    //     this.loans = loans;
+    // }
 
     public Guarantors(String full_name, String email, String phone) {
         this.full_name = full_name;

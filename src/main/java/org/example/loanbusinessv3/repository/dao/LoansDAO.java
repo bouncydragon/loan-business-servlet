@@ -7,15 +7,16 @@ import org.example.loanbusinessv3.model.Accounts;
 import org.example.loanbusinessv3.model.Loans;
 
 public interface LoansDAO {
-    void addLoan(List<Loans> loans, Accounts account);
+    void createLoan(List<Loans> loans, Accounts account);
 
-    Map<String, Object> createLoanWithGuarantors(List<Loans> loansWithGuarantors);
+    void updateLoan(List<Loans> loans);
+
+    List<Loans> findAllLoans();
+
+    Loans findLoanById(String loanId);
 
     void removeLoan(String loanId);
 
-    void updateLoans(List<Loans> loans);
+    // Map<String, Object> createLoanWithGuarantors(List<Loans> loansWithGuarantors);
 
-    List<Loans> getAllLoans();
-
-    Loans getLoanById(String loanId);
 }

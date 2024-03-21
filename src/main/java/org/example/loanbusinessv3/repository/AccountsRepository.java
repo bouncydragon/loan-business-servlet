@@ -1,101 +1,158 @@
 package org.example.loanbusinessv3.repository;
 
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 import org.example.loanbusinessv3.repository.dao.AccountsDAO;
+import org.example.loanbusinessv3.repository.dao.ProfilesDAO;
 import org.example.loanbusinessv3.util.EntityManagerUtil;
-import org.example.loanbusinessv3.model.Accounts;
 
-import java.util.ArrayList;
+import org.example.loanbusinessv3.model.Accounts;
+import org.example.loanbusinessv3.model.Profiles;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AccountsRepository implements AccountsDAO {
+public class AccountsRepository implements AccountsDAO, ProfilesDAO {
     
     @PersistenceUnit
     private EntityManagerFactory emf = EntityManagerUtil.createEntityManagerFactory();
 
     @Override
-    public void insertAccount(Accounts details) {
+    public Accounts createAccount(Accounts account) {
         EntityManager em = emf.createEntityManager();
+
         try {
             em.getTransaction().begin();
-            em.persist(details);
+            em.persist(account);
             em.getTransaction().commit();
         } catch (Exception e) {
-            System.out.println(e);
             em.getTransaction().rollback();
+            throw e;
         } finally {
             em.close();
         }
+        return account;
     }
 
     @Override
-    public List<Accounts> selectAllAccounts() {
+    public Profiles createProfile(Profiles profile) {
         EntityManager em = emf.createEntityManager();
-        // Criteria API
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Accounts> cq = cb.createQuery(Accounts.class);
-        Root<Accounts> root = cq.from(Accounts.class);
-        CriteriaQuery<Accounts> recs = cq.select(root);
 
-        return em.createQuery(recs).getResultList();
-    }
-
-    @Override
-    public Accounts selectAccount(String email) {
-        EntityManager em = emf.createEntityManager();
-        // JPQL
-        try {
-            Accounts resultAccount = em.createQuery("FROM Accounts acct WHERE acct.email = :email", Accounts.class)
-            .setParameter("email", email)
-            .getSingleResult();
-
-            Accounts account = new Accounts();
-            account.setAccount_id(resultAccount.getAccount_id());
-            account.setCreated_at(resultAccount.getCreated_at());
-            account.setEmail(resultAccount.getEmail());
-
-            return account;
-        } finally {
-            em.close();
-        }
-    }
-
-    @Override
-    public void updateAccount(String email, String updatedEmail) {
-        EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.createQuery("UPDATE Accounts acct SET acct.email = ?1 WHERE acct.email = ?2")
-                    .setParameter(1, updatedEmail)
-                    .setParameter(2, email)
-                    .executeUpdate();
-                    
+            em.persist(profile);
             em.getTransaction().commit();
         } catch (Exception e) {
-            System.out.println("Exception: " + e);
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+        return profile;
+    }
+
+    @Override
+    public Map<String, Object> findByEmailWithProfile(String email) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            TypedQuery<Accounts> query = em.createQuery(
+            "SELECT a FROM Accounts a JOIN FETCH a.profile WHERE a.email = :email", Accounts.class);
+            query.setParameter("email", email);
+
+            Accounts account = query.getSingleResult();
+
+            if (account != null) {
+                Profiles profile = account.getProfile();
+
+                Map<String, Object> response = new HashMap<>();
+                Map<String, Object> accountDetails = new HashMap<>();
+                
+                accountDetails.put("account_id", account.getAccount_id());
+                accountDetails.put("email", account.getEmail());
+                accountDetails.put("created_at", account.getCreated_at());
+
+                Map<String, Object> profileDetails = new HashMap<>();
+                profileDetails.put("profile_id", profile.getId());
+                profileDetails.put("address", profile.getAddress());
+                profileDetails.put("fullName", profile.getFull_name());
+                profileDetails.put("phone", profile.getPhone());
+
+                response.put("account", accountDetails);
+                response.put("profile", profileDetails);
+
+                em.close();
+                return response;
+            }
+            throw new NoResultException("Account " + email + " does not exist.");
+        } catch (NoResultException e) {
             e.printStackTrace();
-        } finally {
+            throw e;
+        }
+        finally {
             em.close();
         }
     }
 
     @Override
-    public void deleteAccount(String email) {
+    public List<Accounts> findAllWithProfiles() {
+        EntityManager em = emf.createEntityManager();
+
+        return em.createQuery("SELECT a FROM Accounts a LEFT JOIN FETCH a.profile", Accounts.class).getResultList();
+    }
+    
+    @Override
+    public Accounts findById(Long accountId) {
+        EntityManager em = emf.createEntityManager();
+        return em.find(Accounts.class, accountId);
+    }
+
+    @Override
+    public Profiles updateProfile(Profiles profile) {
+        EntityManager em = emf.createEntityManager();
+        
+        try {
+            em.getTransaction().begin();
+            em.merge(profile);
+            em.getTransaction().commit();
+            return profile;
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+    
+    @Override
+    public void removeAccount(String email) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.createQuery("DELETE FROM Accounts acct WHERE acct.email = ?1")
-                    .setParameter(1, email)
-                    .executeUpdate();
+
+            TypedQuery<Accounts> query = em.createNamedQuery("findAccountByEmail", Accounts.class);
+            query.setParameter("email", email);
+            Accounts account = query.getSingleResult();
+            if (account == null) {
+                throw new EntityNotFoundException("Account not found with email: " + email);
+            }
+
+            Profiles profile = account.getProfile();
+            if (profile != null) {
+                em.remove(profile);
+            }
+
+            em.remove(account);
+
             em.getTransaction().commit();
         } catch (Exception e) {
-            System.out.println(e);
-            em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            throw e;
         } finally {
             em.close();
         }

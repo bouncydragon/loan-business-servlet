@@ -7,11 +7,11 @@ public class Profiles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "profile_id")
-    private Long id;
+    private Long profile_id;
 
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "account_id", nullable = false)
-    private Accounts account_id;
+    private Accounts account;
 
     @Column(unique = true, nullable = false)
     private String full_name;
@@ -33,19 +33,19 @@ public class Profiles {
     }
 
     public Long getId() {
-        return id;
+        return profile_id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(Long profile_id) {
+        this.profile_id = profile_id;
     }
 
-    public Accounts getAccount_id() {
-        return account_id;
+    public Accounts getAccount() {
+        return account;
     }
 
-    public void setAccount_id(Accounts account_id) {
-        this.account_id = account_id;
+    public void setAccount(Accounts account) {
+        this.account = account;
     }
 
     public String getFull_name() {

@@ -24,11 +24,12 @@ public class LoansRepository implements LoansDAO {
     private EntityManagerFactory emf = EntityManagerUtil.createEntityManagerFactory();
 
     @Override
-    public void addLoan(List<Loans> loans, Accounts account) {
+    public void createLoan(List<Loans> loans, Accounts account) {
         EntityManager em = emf.createEntityManager();
 
+        System.out.println(loans);
         System.out.println(account);
-        
+
         try {
             em.getTransaction().begin();
             for (Loans loan : loans) {
@@ -38,8 +39,11 @@ public class LoansRepository implements LoansDAO {
             };
             em.getTransaction().commit();
         } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
             System.out.println(e);
-            em.getTransaction().rollback();
+            throw e;
         } finally {
             em.close();
         }
@@ -47,54 +51,54 @@ public class LoansRepository implements LoansDAO {
 
     
 
+    // @Override
+    // public Map<String, Object> createLoanWithGuarantors(List<Loans> loansWithGuarantors) {
+    //     EntityManager em = emf.createEntityManager();
+    //     Map<String, Object> response = new HashMap<>();
+
+    //     try {
+    //         em.getTransaction().begin();
+    //         List<Map<String, Object>> loansResponse = new ArrayList<>();
+    //         for (Loans loan : loansWithGuarantors) {
+    //             List<Map<String, Object>> guarantorsResponse = new ArrayList<>();
+    //             for (Guarantors guarantor : loan.getGuarantors()) {
+    //                 em.createNativeQuery("INSERT INTO loan_guarantors (loan_id, guarantor_id) VALUES (?, ?)")
+    //                     .setParameter(1, loan.getLoan_id())
+    //                     .setParameter(2, guarantor.getGuarantor_id())
+    //                     .executeUpdate();
+
+    //                 Map<String, Object> guarantorMap = new HashMap<>();
+    //                 guarantorMap.put("id", guarantor.getGuarantor_id());
+    //                 guarantorMap.put("fullName", guarantor.getFull_name());
+    //                 guarantorMap.put("phone", guarantor.getPhone());
+    //                 guarantorMap.put("email", guarantor.getEmail());
+    //                 guarantorsResponse.add(guarantorMap);
+    //             }
+    //             Map<String, Object> loanMap = new HashMap<>();
+    //             loanMap.put("loan_id", loan.getLoan_id());
+    //             loanMap.put("interest_rate", loan.getInterest_rate());
+    //             loanMap.put("loan_amount", loan.getLoan_amount());
+    //             loanMap.put("start_date", loan.getStart_date());
+    //             loanMap.put("end_date", loan.getEnd_date());
+    //             loanMap.put("status", loan.getStatus());
+    //             loanMap.put("guarantors", guarantorsResponse);
+    //             loansResponse.add(loanMap);
+    //         }
+    //         response.put("loans", loansResponse);
+    //         em.getTransaction().commit();
+    //     } catch (Exception e) {
+    //         em.getTransaction().rollback();
+    //         e.printStackTrace();
+    //     } finally {
+    //         em.close();
+    //     }
+    //     return response;
+    // }
+
+
+
     @Override
-    public Map<String, Object> createLoanWithGuarantors(List<Loans> loansWithGuarantors) {
-        EntityManager em = emf.createEntityManager();
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            em.getTransaction().begin();
-            List<Map<String, Object>> loansResponse = new ArrayList<>();
-            for (Loans loan : loansWithGuarantors) {
-                List<Map<String, Object>> guarantorsResponse = new ArrayList<>();
-                for (Guarantors guarantor : loan.getGuarantors()) {
-                    em.createNativeQuery("INSERT INTO loan_guarantors (loan_id, guarantor_id) VALUES (?, ?)")
-                        .setParameter(1, loan.getLoan_id())
-                        .setParameter(2, guarantor.getGuarantor_id())
-                        .executeUpdate();
-
-                    Map<String, Object> guarantorMap = new HashMap<>();
-                    guarantorMap.put("id", guarantor.getGuarantor_id());
-                    guarantorMap.put("fullName", guarantor.getFull_name());
-                    guarantorMap.put("phone", guarantor.getPhone());
-                    guarantorMap.put("email", guarantor.getEmail());
-                    guarantorsResponse.add(guarantorMap);
-                }
-                Map<String, Object> loanMap = new HashMap<>();
-                loanMap.put("loan_id", loan.getLoan_id());
-                loanMap.put("interest_rate", loan.getInterest_rate());
-                loanMap.put("loan_amount", loan.getLoan_amount());
-                loanMap.put("start_date", loan.getStart_date());
-                loanMap.put("end_date", loan.getEnd_date());
-                loanMap.put("status", loan.getStatus());
-                loanMap.put("guarantors", guarantorsResponse);
-                loansResponse.add(loanMap);
-            }
-            response.put("loans", loansResponse);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            e.printStackTrace();
-        } finally {
-            em.close();
-        }
-        return response;
-    }
-
-
-
-    @Override
-    public List<Loans> getAllLoans() {
+    public List<Loans> findAllLoans() {
         EntityManager em = emf.createEntityManager();
         
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -105,10 +109,12 @@ public class LoansRepository implements LoansDAO {
     }
 
     @Override
-    public Loans getLoanById(String loanId) {
+    public Loans findLoanById(String loanId) {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.find(Loans.class, loanId);
+            Loans abc = em.find(Loans.class, loanId);
+            System.out.println(abc);
+            return abc;
         } finally {
             em.close();
         }
@@ -134,7 +140,7 @@ public class LoansRepository implements LoansDAO {
     }
 
     @Override
-    public void updateLoans(List<Loans> loansToUpdate) {
+    public void updateLoan(List<Loans> loansToUpdate) {
         EntityManager em = emf.createEntityManager();
 
         try {

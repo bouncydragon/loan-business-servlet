@@ -22,7 +22,7 @@ public class Accounts {
     @Column(nullable = false)
     private LocalDateTime created_at;
 
-    @OneToOne(mappedBy = "account_id", cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private Profiles profile;
 
     public Accounts(String email) {

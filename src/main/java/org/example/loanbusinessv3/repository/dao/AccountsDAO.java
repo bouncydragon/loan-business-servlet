@@ -2,17 +2,21 @@ package org.example.loanbusinessv3.repository.dao;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import org.example.loanbusinessv3.model.Accounts;
+import org.example.loanbusinessv3.model.Profiles;
 
 public interface AccountsDAO {
-    void insertAccount(Accounts details) throws SQLException;
+    Accounts createAccount(Accounts account) throws SQLException;
 
-    List<Accounts> selectAllAccounts();
+    Profiles createProfile(Profiles profile) throws SQLException;
 
-    Accounts selectAccount(String email);
+    List<Accounts> findAllWithProfiles();
 
-    void updateAccount(String email, String updatedEmail) throws SQLException;
+    Accounts findById(Long accountId);
 
-    void deleteAccount(String email) throws SQLException;
+    Map<String, Object> findByEmailWithProfile(String email);
+
+    void removeAccount(String email) throws SQLException;
 }
