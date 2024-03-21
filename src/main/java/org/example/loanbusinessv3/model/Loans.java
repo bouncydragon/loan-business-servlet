@@ -21,13 +21,13 @@ public class Loans {
     @JoinColumn(name = "account_id", updatable = false)
     private Accounts account_id;
 
-    // @ManyToMany
-    // @JoinTable(
-    //         name = "loan_guarantors",
-    //         joinColumns = @JoinColumn(name = "loan_id"),
-    //         inverseJoinColumns = @JoinColumn(name = "guarantor_id")
-    // )
-    // private List<Guarantors> guarantors;
+    @ManyToMany
+    @JoinTable(
+            name = "loan_guarantors",
+            joinColumns = @JoinColumn(name = "loan_id"),
+            inverseJoinColumns = @JoinColumn(name = "guarantor_id")
+    )
+    private List<Guarantors> guarantors;
 
     @Column(nullable = false)
     private double loan_amount;
@@ -114,11 +114,11 @@ public class Loans {
         this.status = status;
     }
 
-    // public List<Guarantors> getGuarantors() {
-    //     return guarantors;
-    // }
+    public List<Guarantors> getGuarantors() {
+        return guarantors;
+    }
 
-    // public void setGuarantors(List<Guarantors> guarantors) {
-    //     this.guarantors = guarantors;
-    // }
+    public void setGuarantors(List<Guarantors> guarantors) {
+        this.guarantors = guarantors;
+    }
 }

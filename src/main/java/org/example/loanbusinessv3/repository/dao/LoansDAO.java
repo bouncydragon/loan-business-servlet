@@ -17,6 +17,6 @@ public interface LoansDAO {
 
     void removeLoan(String loanId);
 
-    // Map<String, Object> createLoanWithGuarantors(List<Loans> loansWithGuarantors);
+    Map<String, Object> createLoanWithGuarantors(List<Loans> loansWithGuarantors);
 
 }

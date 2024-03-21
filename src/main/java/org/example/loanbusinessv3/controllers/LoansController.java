@@ -18,8 +18,10 @@ import org.example.loanbusinessv3.model.Loans;
 import org.example.loanbusinessv3.model.Profiles;
 import org.example.loanbusinessv3.model.Status;
 import org.example.loanbusinessv3.repository.AccountsRepository;
-// import org.example.loanbusinessv3.repository.GuarantorRepository;
+import org.example.loanbusinessv3.repository.GuarantorRepository;
 import org.example.loanbusinessv3.repository.LoansRepository;
+import org.example.loanbusinessv3.repository.dto.GuarantorsDTO;
+import org.example.loanbusinessv3.repository.dto.LoansDTO;
 import org.example.loanbusinessv3.util.LocalDateTypeAdapter;
 import org.example.loanbusinessv3.util.ResponseHandler;
 
@@ -32,7 +34,7 @@ public class LoansController extends HttpServlet {
 
     private final AccountsRepository accountRepo = new AccountsRepository();
     private final LoansRepository loansRepo = new LoansRepository();
-    // private final GuarantorRepository guarantorRepo = new GuarantorRepository();
+    private final GuarantorRepository guarantorRepo = new GuarantorRepository();
 
     private Gson gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTypeAdapter())
@@ -42,38 +44,38 @@ public class LoansController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String urlPath = req.getServletPath();
 
-        // if (Objects.equals(urlPath, "/loans-guarantors")) {
-        //     assocLoansAndGuarantors(req, resp);
-        // } else {
+        if (Objects.equals(urlPath, "/loans-guarantors")) {
+            assocLoansAndGuarantors(req, resp);
+        } else {
             createLoansWithAssocAccount(req, resp);
-        // }
+        }
     }
 
-    // private void assocLoansAndGuarantors(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-    //     BufferedReader reader = req.getReader();
-    //     JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
+    private void assocLoansAndGuarantors(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        BufferedReader reader = req.getReader();
+        JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
 
-    //     JsonArray loansArray = jsonObject.getAsJsonArray("loans");
-    //     JsonArray guarantorsList = jsonObject.getAsJsonArray("guarantors");
-    //     List<Loans> loansWithGuarantors = new ArrayList<>();
+        JsonArray loansArray = jsonObject.getAsJsonArray("loans");
+        JsonArray guarantorsList = jsonObject.getAsJsonArray("guarantors");
+        List<Loans> loansWithGuarantors = new ArrayList<>();
 
-    //     for (JsonElement lElement : loansArray) {
-    //         Loans loan = gson.fromJson(lElement, Loans.class);
-    //         List<Guarantors> loanGuarantors = new ArrayList<>();
+        for (JsonElement lElement : loansArray) {
+            Loans loan = gson.fromJson(lElement, Loans.class);
+            List<Guarantors> loanGuarantors = new ArrayList<>();
 
-    //         for (JsonElement gElement : guarantorsList) {
-    //             String email = gElement.getAsString();
-    //             Guarantors guarantor = guarantorRepo.findByEmail(email);
-    //             if (guarantor != null) {
-    //                 loanGuarantors.add(guarantor);
-    //             }
-    //         }
-    //         loan.setGuarantors(loanGuarantors);
-    //         loansWithGuarantors.add(loan);
-    //     }
-    //     Map<String, Object> list = loansRepo.createLoanWithGuarantors(loansWithGuarantors);
-    //     ResponseHandler.jsonResponse(res, HttpServletResponse.SC_OK, list);
-    // }
+            for (JsonElement gElement : guarantorsList) {
+                String email = gElement.getAsString();
+                Guarantors guarantor = guarantorRepo.findByEmail(email);
+                if (guarantor != null) {
+                    loanGuarantors.add(guarantor);
+                }
+            }
+            loan.setGuarantors(loanGuarantors);
+            loansWithGuarantors.add(loan);
+        }
+        Map<String, Object> list = loansRepo.createLoanWithGuarantors(loansWithGuarantors);
+        ResponseHandler.jsonResponse(res, HttpServletResponse.SC_OK, list);
+    }
 
     private void createLoansWithAssocAccount(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         BufferedReader reader = req.getReader();
@@ -120,9 +122,12 @@ public class LoansController extends HttpServlet {
             loansToUpdate.add(loan);
         }
 
-        loansRepo.updateLoan(loansToUpdate);
-
-        ResponseHandler.jsonResponse(resp, HttpServletResponse.SC_OK, "Loans updated successfully");
+        try {
+            loansRepo.updateLoan(loansToUpdate);
+            ResponseHandler.jsonResponse(resp, HttpServletResponse.SC_OK, "Loans updated successfully.");
+        } catch (Exception e) {
+            ResponseHandler.jsonResponse(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
     }
 
     @Override
@@ -148,22 +153,32 @@ public class LoansController extends HttpServlet {
     private void findAllLoans(HttpServletRequest req, HttpServletResponse res) throws IOException {
         List<Loans> loans = loansRepo.findAllLoans();
 
-        List<Map<String, Object>> allLoans = new ArrayList<>();
+        List<LoansDTO> allLoans = new ArrayList<>();
 
         for (Loans l : loans) {
-            Map<String, Object> loanInfo = new HashMap<>();
-            loanInfo.put("account", l.getAccount_id());
-            loanInfo.put("loan_id", l.getLoan_id());
-            loanInfo.put("loan_amount", l.getLoan_amount());
-            loanInfo.put("interest_rate", l.getInterest_rate());
-            loanInfo.put("start_date", l.getStart_date());
-            loanInfo.put("end_date", l.getEnd_date());
-            loanInfo.put("status", l.getStatus());
+            LoansDTO loanDTO = new LoansDTO();
+            loanDTO.setLoan_id(l.getLoan_id());
+            loanDTO.setLoan_amount(l.getLoan_amount());
+            loanDTO.setInterest_rate(l.getInterest_rate());
+            loanDTO.setStart_date(l.getStart_date());
+            loanDTO.setEnd_date(l.getEnd_date());
+            loanDTO.setStatus(l.getStatus());
 
-            // need to add the guarantors
-
-            allLoans.add(loanInfo);
+            List<GuarantorsDTO> guarantorDTOs = new ArrayList<>();
+        for (Guarantors guarantor : l.getGuarantors()) {
+            GuarantorsDTO guarantorDTO = new GuarantorsDTO();
+            guarantorDTO.setGuarantor_id(guarantor.getGuarantor_id());
+            guarantorDTO.setFull_name(guarantor.getFull_name());
+            guarantorDTO.setEmail(guarantor.getEmail());
+            guarantorDTO.setPhone(guarantor.getPhone());
+            guarantorDTOs.add(guarantorDTO);
         }
+            loanDTO.setGuarantors(guarantorDTOs);
+
+            allLoans.add(loanDTO);
+        }
+
+        System.out.println(allLoans);
 
         ResponseHandler.jsonResponse(res, HttpServletResponse.SC_OK, allLoans);
     }

@@ -12,4 +12,8 @@ public interface GuarantorsDAO {
     void updateGuarantors(List<Guarantors> guarantors) throws NoResultException;
 
     Guarantors findByEmail(String email) throws NoResultException;
+
+    List<Guarantors> findAllGuarantors();
+
+    void removeGuarantor(String guarantorId);
 }
